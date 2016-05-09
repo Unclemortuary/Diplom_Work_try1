@@ -11,16 +11,15 @@ namespace Diplom_Work_try1
 {
     class Engine
     {
-        public Bitmap currentFiltredImage;
-        private int currentShot;
-        private Algorithm AlgorithmOfCounterSegmentation;
+        public Bitmap currentFiltredImage; // Текущий отфильтрованный снимок(возможно, лучше его определить не в этом классе)
+        private Algorithm AlgorithmOfCounterSegmentation; // Экземпляр класса алгоритм
 
         public Engine()
         {
-            AlgorithmOfCounterSegmentation = new Algorithm();
+            AlgorithmOfCounterSegmentation = new Algorithm(); // Инициализация
         }
 
-        public static List<Image> LoadImages(int count)
+        public static List<Image> LoadImages(int count) // Загружает изображения
         {
             var images = new List<Image>(count);
             try
@@ -48,8 +47,10 @@ namespace Diplom_Work_try1
             return null;
         }
 
-        public static Bitmap GetFiltredShot(Bitmap original)
+        public static Bitmap GetFiltredShot(Bitmap original) // Возвращает отфильтрованный снимок
         {
+            // То, что закомментировано, это фильтр Собеля. Сейчас используется фильтр Кенни, но там границы большие слишком.
+            /*
             Bitmap b = original;
             Bitmap bb = original;
             //_invert(b);
@@ -117,9 +118,13 @@ namespace Diplom_Work_try1
                 }
             }
             return bb;
+            */
+
+            Canny cannyData = new Canny(original);
+            return cannyData.DisplayImage(cannyData.EdgeMap);
         }
 
-        private static Bitmap _invert(Image img)
+        private static Bitmap _invert(Image img) // По идее, должен возвращать изображение в оттенках серого, но тоже не используется.
         {
             var image1 = new Bitmap(img);
             for (int x = 0; x < image1.Width; x++)
@@ -146,16 +151,24 @@ namespace Diplom_Work_try1
             return image1;
         }
 
-        public Point DotForPainting(int current_x, int current_y, Point pred)
+        public Point DotForPainting(int current_x, int current_y, Point pred) // Метод, который вызывает алгоритм для переданной в качестве атрибута точки
         {
-            Point paintingDot = Algorithm.GetCounterDot(currentFiltredImage, current_x, current_y, pred);
-            return paintingDot;
+            Point paintingDot = Algorithm.GetCountourDot(currentFiltredImage, current_x, current_y, pred);
+            return paintingDot; // Возвращает полученную через алгоритм точку
         }
 
         public Point DotForPainting(int current_x, int current_y)
         {
-            Point paintingDot = Algorithm.GetCounterDot(currentFiltredImage, current_x, current_y);
+            Point paintingDot = Algorithm.GetCountourDot(currentFiltredImage, current_x, current_y);
             return paintingDot;
         }
+
+        public Point[] FinishCountour(ArrayList dots, int startX, int startY)
+        {
+            var end = (Point)dots[(dots.Count - 1)];
+            Point[] partOfCountour = Algorithm.Beatl(startX, startY, currentFiltredImage, end);
+            return partOfCountour;
+        }
     }
+    //end of Engine class
 }
