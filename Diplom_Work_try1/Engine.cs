@@ -9,19 +9,49 @@ using System.Windows.Forms;
 
 namespace Diplom_Work_try1
 {
-    class Engine
+    public class Engine
     {
-        public Bitmap currentFiltredImage; // Текущий отфильтрованный снимок(возможно, лучше его определить не в этом классе)
-        private Algorithm AlgorithmOfCounterSegmentation; // Экземпляр класса алгоритм
-
-        public Engine()
+        private float step = 3.0F; //Шаг
+        public float Step
         {
-            AlgorithmOfCounterSegmentation = new Algorithm(); // Инициализация
+            get
+            {
+                return step;
+            }
+            set
+            {
+                step = value;
+            }
         }
-
-        public static List<Image> LoadImages(int count) // Загружает изображения
+        private int countShots = 1; //Число снимков
+        public int CountShots
         {
-            var images = new List<Image>(count);
+            get
+            {
+                return countShots;
+            }
+            set
+            {
+                countShots = value;
+            }
+        }
+        private static int counter = 0; //Внутренний счетчик для снимков
+        public int Counter
+        {
+            get
+            {
+                return counter;
+            }
+        }
+        private List<Image> MRTShots; // Список загруженных снимков
+        private Point centr;
+        public static Bitmap currentFiltredImage;
+        public static Bitmap currentSegregation;
+
+
+        public void LoadImages() // Загружает изображения
+        {
+            var images = new List<Image>(CountShots);
             try
             {
                 OpenFileDialog dlg = new OpenFileDialog();
@@ -30,7 +60,7 @@ namespace Diplom_Work_try1
 
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
-                    if (dlg.FileNames.Count() == count)
+                    if (dlg.FileNames.Count() == CountShots)
                     {
                         foreach (string name in dlg.FileNames)
                             images.Add(Image.FromFile(name));
@@ -38,93 +68,23 @@ namespace Diplom_Work_try1
                     else
                         MessageBox.Show("Выберите указанное количество изображений");
                 }
-                return images;
+                MRTShots = images;
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Ошибка при попытке открыть изображение :" + ex);
             }
-            return null;
         }
 
-        public static Bitmap GetFiltredShot(Bitmap original) // Возвращает отфильтрованный снимок
+        public void GetFiltredShot() // Возвращает отфильтрованный снимок
         {
-            // То, что закомментировано, это фильтр Собеля. Сейчас используется фильтр Кенни, но там границы большие слишком.
-            /*
-            Bitmap b = original;
-            Bitmap bb = original;
-            //_invert(b);
-            int width = b.Width;
-            int height = b.Height;
-            int[,] gx = new int[,] { { -1, 0, 1 }, { -2, 0, 2 }, { -1, 0, 1 } };
-            int[,] gy = new int[,] { { 1, 2, 1 }, { 0, 0, 0 }, { -1, -2, -1 } };
-
-            int[,] allPixR = new int[width, height];
-            int[,] allPixG = new int[width, height];
-            int[,] allPixB = new int[width, height];
-
-            int limit = 128 * 128;
-
-            for (int i = 0; i < width; i++)
-            {
-                for (int j = 0; j < height; j++)
-                {
-                    allPixR[i, j] = b.GetPixel(i, j).R;
-                    allPixG[i, j] = b.GetPixel(i, j).G;
-                    allPixB[i, j] = b.GetPixel(i, j).B;
-                }
-            }
-
-            int new_rx = 0, new_ry = 0;
-            int new_gx = 0, new_gy = 0;
-            int new_bx = 0, new_by = 0;
-            int rc, gc, bc;
-            for (int i = 1; i < b.Width - 1; i++)
-            {
-                for (int j = 1; j < b.Height - 1; j++)
-                {
-
-                    new_rx = 0;
-                    new_ry = 0;
-                    new_gx = 0;
-                    new_gy = 0;
-                    new_bx = 0;
-                    new_by = 0;
-                    rc = 0;
-                    gc = 0;
-                    bc = 0;
-
-                    for (int wi = -1; wi < 2; wi++)
-                    {
-                        for (int hw = -1; hw < 2; hw++)
-                        {
-                            rc = allPixR[i + hw, j + wi];
-                            new_rx += gx[wi + 1, hw + 1] * rc;
-                            new_ry += gy[wi + 1, hw + 1] * rc;
-
-                            gc = allPixG[i + hw, j + wi];
-                            new_gx += gx[wi + 1, hw + 1] * gc;
-                            new_gy += gy[wi + 1, hw + 1] * gc;
-
-                            bc = allPixB[i + hw, j + wi];
-                            new_bx += gx[wi + 1, hw + 1] * bc;
-                            new_by += gy[wi + 1, hw + 1] * bc;
-                        }
-                    }
-                    if (new_rx * new_rx + new_ry * new_ry > limit || new_gx * new_gx + new_gy * new_gy > limit || new_bx * new_bx + new_by * new_by > limit)
-                        bb.SetPixel(i, j, Color.White);
-                    else
-                        bb.SetPixel(i, j, Color.Black);
-                }
-            }
-            return bb;
-            */
-
+            var original = (Bitmap)MRTShots[Counter];
             Canny cannyData = new Canny(original);
-            return cannyData.DisplayImage(cannyData.EdgeMap);
+            currentFiltredImage = cannyData.DisplayImage(cannyData.EdgeMap);
+            currentSegregation = _invert(original);
         }
 
-        private static Bitmap _invert(Image img) // По идее, должен возвращать изображение в оттенках серого, но тоже не используется.
+        private static Bitmap _invert(Image img)
         {
             var image1 = new Bitmap(img);
             for (int x = 0; x < image1.Width; x++)
@@ -135,7 +95,7 @@ namespace Diplom_Work_try1
 
                     var colomNumber = pixelColor.R;
 
-                    if (pixelColor.R > 50 && pixelColor.R < 100)
+                    if (pixelColor.R > 10 && pixelColor.R < 150)
                     {
                         colomNumber = 200;
                     }
@@ -151,23 +111,49 @@ namespace Diplom_Work_try1
             return image1;
         }
 
-        public Point DotForPainting(int current_x, int current_y, Point pred) // Метод, который вызывает алгоритм для переданной в качестве атрибута точки
+                    //Методы для доступа к полям класса
+
+        public void MaintainCounter()
         {
-            Point paintingDot = Algorithm.GetCountourDot(currentFiltredImage, current_x, current_y, pred);
+            counter++;
+        }
+
+        public void Setcentr(Point a)
+        {
+            centr = a;
+        }
+
+        public Image GetCurrentShot()
+        {
+            return MRTShots[Counter];
+        }
+
+
+        public Point DotForPainting(int current_x, int current_y) // Метод, который вызывает алгоритм для переданной в качестве атрибута точки
+        {
+            Point paintingDot = Algorithm.GetCountourDot(currentFiltredImage, current_x, current_y);
             return paintingDot; // Возвращает полученную через алгоритм точку
         }
 
-        public Point DotForPainting(int current_x, int current_y)
+        public Point[] FinishCountour(List<Point> dots)
         {
-            Point paintingDot = Algorithm.GetCountourDot(currentFiltredImage, current_x, current_y);
-            return paintingDot;
+            var first = dots[0];
+            var last = dots[dots.Count - 1];
+            var startX = last.X;
+            var startY = last.Y;
+            var partOfContour2 = Algorithm.Beatle(currentSegregation, startX, startY, first, centr);
+            var partOfContour1 = dots;
+            partOfContour1.AddRange(partOfContour2);
+            return partOfContour2.ToArray();
         }
 
-        public Point[] FinishCountour(ArrayList dots, int startX, int startY)
+        public static bool CheckEnd(List<PointF> a)
         {
-            var end = (Point)dots[(dots.Count - 1)];
-            Point[] partOfCountour = Algorithm.Beatl(startX, startY, currentFiltredImage, end);
-            return partOfCountour;
+            var last = a.Count - 1;
+            if (a[0].Equals(a[last]) || (a[last].X == a[0].X + 1.0F && a[last].Y == a[0].Y) || (a[last].X == a[0].X - 1.0F && a[last].Y == a[0].Y))
+                return true;
+            else
+                return false;
         }
     }
     //end of Engine class

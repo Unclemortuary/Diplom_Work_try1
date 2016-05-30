@@ -20,7 +20,7 @@ namespace Diplom_Work_try1
         const float Sigma = 1;   // for N=2 Sigma =0.85  N=5 Sigma =1, N=9 Sigma = 2    2*Sigma = (int)N/2
         //Canny Edge Detection Parameters
         const float MaxHysteresisThresh = (float)100.0;
-        const float MinHysteresisThresh = (float)20.0;
+        const float MinHysteresisThresh = (float)50.0;
         public float[,] DerivativeX;
         public float[,] DerivativeY;
         public int[,] FilteredImage;

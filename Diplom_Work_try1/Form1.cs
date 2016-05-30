@@ -14,28 +14,29 @@ using System.Windows.Forms;
 
 namespace Diplom_Work_try1
 {
-    public partial class Form1 : Form
+    public partial class Form : System.Windows.Forms.Form
     {
-        public int countShots = 1; // Количество загружаемых снимков
-        public int counter; // Счетчик для снимков (пока не используется)
-        private List<Image> MRTShots; // Список загруженных снимков
+        public static Engine ProgrammEngine;
+        private List<Contour> ct;
+        private Surface sur;
+
         private Graphics g; // Экземпляр класса графики(с помощью него и происходит рисование)
+        private bool end = false;
+        private bool notingCentr = false;
         private bool ispaint = false; // Факт рисования
         private Point currentPoint; // Текущая точка
         private Point prevPoint; // Предыдущая точка
         private Pen p; // Экземпляр класса кисточек
         private Color currentColor = Color.Red;
-        private Engine ProgrammEngine; //Экземпляр класса Движок, через него вызываются почти все методы
-        private ArrayList DotsForContour; // Вроде как(не проверял) динамический массив для сохранения точек
-        private Point[] Countour;
+        private List<PointF> DotsForContour;
 
-        public Form1()
+        public Form()
         {
             InitializeComponent();
             g = panel1.CreateGraphics(); // Указываешь, что графика создается на элементе panel1
-            //g2 = panel1.CreateGraphics();
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; // Сглаживание линий (оно всё-таки есть)
-            DotsForContour = new ArrayList(); // Инициализация массива
+            g.SmoothingMode = SmoothingMode.AntiAlias; // Сглаживание линий (оно всё-таки есть)
+            DotsForContour = new List<PointF>();
+            ct = new List<Contour>();
         }
 
         private void Form1_Load(object sender, EventArgs e) // Загрузчик формы
@@ -49,19 +50,35 @@ namespace Diplom_Work_try1
 
         private void button1_Click(object sender, EventArgs e) //Обработчик кнопки "Загрузить"
         {
-            MRTShots = Engine.LoadImages(countShots); //Вызываем метод из движка для загрузки снимков и результат записываем в MRTShots
-            panel1.BackgroundImage = MRTShots[0];
-            ProgrammEngine.currentFiltredImage = Engine.GetFiltredShot(new Bitmap(MRTShots[0])); // Вызываем метод, который возвращает отфильтрофанный(пока что только первый) снимок и приравниваем к текущему отфильтрованному снимку(определен в движке)
-            pictureBox1.Image = ProgrammEngine.currentFiltredImage; // Выводит отфильтрованный снимок на picturebox1
+            ProgrammEngine.LoadImages();
+            panel1.BackgroundImage = ProgrammEngine.GetCurrentShot();
+            ProgrammEngine.GetFiltredShot();
+            pictureBox1.Image = Engine.currentSegregation;
         }
 
         private void CountOfShots_ValueChanged(object sender, EventArgs e) //Обработчик изменения значения поля для количества снимков
         {
-            countShots = (int)CountOfShots.Value;
+            var count = (int)CountOfShots.Value;
+            ProgrammEngine.CountShots = count;
         }
 
         private void panel1_MouseClick(object sender, MouseEventArgs e) // Обработчик щелчка мыши на panel1
         {
+            if (notecentbutton.Enabled)
+            {
+                if (notingCentr)
+                {
+                    ProgrammEngine.Setcentr(e.Location);
+                    notecentbutton.Enabled = false;
+                    notingCentr = false;
+                    return;
+                }
+                else
+                {
+                    MessageBox.Show("Отметьте центр глаза");
+                    return;
+                }
+            }
             if (!ispaint)
             {
                 ispaint = true;
@@ -69,11 +86,12 @@ namespace Diplom_Work_try1
             }
             else
             {
-                //List<Point> partOfCountour1 = DotsForContour;
                 ispaint = false;
-                var partOfCountour2 = ProgrammEngine.FinishCountour(DotsForContour, e.X, e.Y);
-                //Countour = partOfCountour1.Concat(partOfCountour2);
-                
+                /*if (!end)
+                {
+                    contour = ProgrammEngine.FinishCountour(DotsForContour);
+                    RedrawCountour(contour);
+                }*/
             }
         }
 
@@ -90,36 +108,84 @@ namespace Diplom_Work_try1
 
         public void Painting() // Метод, который рисует
         {
-            var firstPoint = ProgrammEngine.DotForPainting(prevPoint.X, prevPoint.Y); // Для первой точки вызывается второй из перегрузки метод
-            var secondPoint = ProgrammEngine.DotForPainting(currentPoint.X, currentPoint.Y, firstPoint); // Для второй точки вызывается метод с атрибутом Pred
+            p.Color = Color.Red;
+            var last = DotsForContour.Count - 1;
+            var firstPoint = ProgrammEngine.DotForPainting(prevPoint.X, prevPoint.Y);
+            var secondPoint = ProgrammEngine.DotForPainting(currentPoint.X, currentPoint.Y); // Для второй точки вызывается метод с атрибутом Pred
             g.DrawLine(p, firstPoint, secondPoint);
             DotsForContour.Add(secondPoint);
-            var last = DotsForContour.Count - 1;
             if(DotsForContour.Count > 2)
             {
-                if (DotsForContour[0].Equals(DotsForContour[last]))
+                if (secondPoint != DotsForContour[DotsForContour.Count - 1])
+                    DotsForContour.Add(secondPoint);
+                end = Engine.CheckEnd(DotsForContour);
+                if (end)
                 {
                     ispaint = false;
-                    panel1.Refresh();
-                    RedrawCountour(Countour);
+                    RedrawCountour(DotsForContour);
                 }
             }
-            //counter++;
         }
 
-        private void RedrawCountour(Point[] dots)
+        private void RedrawCountour(List<PointF> dots)
         {
-            //Point[] coords = (Point[]) dots.ToArray(typeof(Point));
-            var count = dots.Count();
+            panel1.Refresh();
+            var count = dots.Count;
             p.Color = Color.Green;
             for (int i = 0; i < (count - 1); i++)
-                g.DrawLine(p, dots[i], dots[i + 1]);
+            {
+                var point1 = dots[i];
+                var point2 = dots[i + 1];
+                g.DrawLine(p, point1, point2);
+            }
         }
 
-        ~Form1() // необязательно
+        private void RedrawCountour(PointF[] dots)
         {
-            g.Dispose();
-            g = null;
+            panel1.Refresh();
+            var count = dots.Count();
+            p.Color = Color.Chartreuse;
+            for (int i = 0; i < (count - 1); i++)
+            {
+                var point1 = dots[i];
+                var point2 = dots[i + 1];
+                g.DrawLine(p, point1, point2);
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e) //Обработчик кнопки "Очистить"
+        {
+            panel1.Refresh();
+            DotsForContour.Clear();
+            notecentbutton.Enabled = true;
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            notingCentr = true;
+        }
+
+        private void save_button_Click(object sender, EventArgs e)
+        {
+            var dist = DotsForContour.Distinct();
+            ct.Add(new Contour(dist.ToList()));
+            if (ProgrammEngine.CountShots > (ProgrammEngine.Counter + 1))
+            {
+                ProgrammEngine.MaintainCounter();
+                panel1.BackgroundImage = ProgrammEngine.GetCurrentShot();
+                ProgrammEngine.GetFiltredShot();
+                pictureBox1.Image = Engine.currentFiltredImage;
+                DotsForContour.Clear();
+            }
+            else
+                sur = new Surface();
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            var value = (float)numericUpDown1.Value;
+            ProgrammEngine.Step = value;
         }
     }
+    //end of Form class
 }
