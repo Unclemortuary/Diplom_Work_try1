@@ -8,9 +8,10 @@ using System.Drawing;
 
 namespace Diplom_Work_try1
 {
-    class Contour
+    public class Contour
     {
         private Dot[] dots;
+        public static int Denom = 16;
 
 
         public Contour(List<PointF> points)
@@ -22,10 +23,10 @@ namespace Diplom_Work_try1
 
         private Dot[] setCoords(List<PointF> p, int maxYindex)
         {
-            var interval = p.Count / 16;
+            var interval = p.Count / Denom;
             var Z_coord = Form.ProgrammEngine.Step * Form.ProgrammEngine.Counter;
             var coordinates = new List<Dot>();
-            for (int i = 0, j = maxYindex; i < 16; i ++, j = j + interval)
+            for (int i = 0, j = maxYindex; i < Denom; i ++, j = j + interval)
             {
                 if (j >= p.Count)
                     j = j - p.Count;

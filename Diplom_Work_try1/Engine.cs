@@ -23,7 +23,7 @@ namespace Diplom_Work_try1
                 step = value;
             }
         }
-        private int countShots = 1; //Число снимков
+        private static int countShots; //Число снимков
         public int CountShots
         {
             get
@@ -135,22 +135,15 @@ namespace Diplom_Work_try1
             return paintingDot; // Возвращает полученную через алгоритм точку
         }
 
-        public Point[] FinishCountour(List<Point> dots)
+        public List<PointF> FinishCountour(List<PointF> dots)
         {
-            var first = dots[0];
-            var last = dots[dots.Count - 1];
-            var startX = last.X;
-            var startY = last.Y;
-            var partOfContour2 = Algorithm.Beatle(currentSegregation, startX, startY, first, centr);
-            var partOfContour1 = dots;
-            partOfContour1.AddRange(partOfContour2);
-            return partOfContour2.ToArray();
+            return Algorithm.Beatle(currentSegregation, centr);
         }
 
         public static bool CheckEnd(List<PointF> a)
         {
             var last = a.Count - 1;
-            if (a[0].Equals(a[last]) || (a[last].X == a[0].X + 1.0F && a[last].Y == a[0].Y) || (a[last].X == a[0].X - 1.0F && a[last].Y == a[0].Y))
+            if (a[0].Equals(a[last]) || (a[last].X == a[0].X + 1.0F && a[last].Y == a[0].Y && a.Count > 10) || (a[last].X == a[0].X - 1.0F && a[last].Y == a[0].Y && a.Count > 10))
                 return true;
             else
                 return false;

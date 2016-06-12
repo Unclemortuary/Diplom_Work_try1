@@ -10,7 +10,7 @@ namespace Diplom_Work_try1
             int plusX = 0, plusY = 0; // Счетчики по x и y
             Point contourDot = new Point(location_x, location_y); // Возвращаемая точка
             var count = 0;
-            while (count < 10)
+            while (count < 6)
             {
                 var color1 = img.GetPixel(location_x + plusX, location_y);
                 var color2 = img.GetPixel(location_x - plusX, location_y);
@@ -51,43 +51,33 @@ namespace Diplom_Work_try1
         enum Side { North, East, South, West, };
 
 
-        public static List<Point> Beatle(Bitmap img, int startCoord_x, int startCoord_y, Point end, Point blackside)
+        public static List<PointF> Beatle(Bitmap img, Point blackside)
         {
             Side direction;
-            if(blackside.X == startCoord_x)
-            {
-                if (blackside.Y < startCoord_y)
-                    direction = Side.South;
-                else
-                    direction = Side.North;
-            }
-            if (blackside.X < startCoord_x)
-                direction = Side.West;
-            else
+            var shift = FindWhite(img, blackside);
+            if (shift < 0)
                 direction = Side.East;
-            int[] sh = new int[1];
-            int cont = 0;
-            int currcoordX = startCoord_x;
-            int currcoordY = startCoord_y;
+            else
+                direction = Side.West;
+            int currcoordX = blackside.X + shift;
+            int currcoordY = blackside.Y;
             bool prevBlack = false;
-            var TransleteCoords = new List<Point>();
-            var beatle = img.GetPixel(startCoord_x, startCoord_y);
-            if(beatle.R != 200)
+            var TransleteCoords = new List<PointF>();
+            PointF start_point = new PointF();
+            PointF end_point = new PointF();
+            do
             {
-                sh = FindWhite(img, startCoord_x, startCoord_y);
-                currcoordX = currcoordX + sh[0];
-                currcoordY = currcoordY + sh[1];
-            }
-
-            while (cont < 100)
-            {
-                beatle = img.GetPixel(currcoordX, currcoordY);
-                if(beatle.R != 200)
+                var beatle = img.GetPixel(currcoordX, currcoordY);
+                if (beatle.R != 200)
                 {
                     if (!prevBlack)
-                        TransleteCoords.Add(new Point(currcoordX, currcoordY));
+                    {
+                        TransleteCoords.Add(new PointF(currcoordX, currcoordY));
+                        if (TransleteCoords.Count == 1)
+                            start_point = TransleteCoords[0];
+                    }
                     prevBlack = true;
-                    switch(direction)
+                    switch (direction)
                     {
                         case Side.East:
                             currcoordY--;
@@ -106,11 +96,12 @@ namespace Diplom_Work_try1
                             direction = Side.South;
                             break;
                     }
+                    end_point = new PointF(currcoordX, currcoordY);
                 }
                 else
                 {
-                    if(prevBlack)
-                        TransleteCoords.Add(new Point(currcoordX, currcoordY));
+                    if (prevBlack)
+                        TransleteCoords.Add(new PointF(currcoordX, currcoordY));
                     prevBlack = false;
                     switch (direction)
                     {
@@ -131,52 +122,31 @@ namespace Diplom_Work_try1
                             direction = Side.North;
                             break;
                     }
+                    end_point = new PointF(currcoordX, currcoordY);
                 }
-                cont++;
-            }
+            } while (end_point != start_point);
             return TransleteCoords;
         }
 
-        private static int[] FindWhite(Bitmap img, int startx, int starty)
+        private static int FindWhite(Bitmap img, Point centr)
         {
-            int x = startx;
-            int y = starty;
-            int[] shift = { 0, 0 };
-            var color = img.GetPixel(startx, starty).R;
-            var countr = 0;
-            while (countr < 20)
+            int x = centr.X;
+            int y = centr.Y;
+            int shift = 0;
+            var color = img.GetPixel(x, y).R;
+            var finded = false;
+            while (!finded)
             {
-                var plusx = 1;
-                var plusy = 1;
-                var down = img.GetPixel(x, y + plusy);
-                var up = img.GetPixel(x, y - plusy);
-                var left = img.GetPixel(x + plusx, y);
-                var right = img.GetPixel(x - plusx, y);
-
-                if (up.R == 200)
-                {
-                    shift.SetValue(-plusy, 1);
-                    return shift;
-                }
-                if (down.R == 200)
-                {
-                    shift.SetValue(plusy, 1);
-                    return shift;
-                }
-
+                var left = img.GetPixel(x + shift, y);
+                var right = img.GetPixel(x - shift, y);
                 if (left.R == 200)
-                {
-                    shift.SetValue(plusx, 0);
-                    return shift;
-                }
+                    finded = true;
                 if (right.R == 200)
                 {
-                    shift.SetValue(-plusx, 0);
-                    return shift;
+                    shift = -shift;
+                    finded = true;
                 }
-                plusx++;
-                plusy++;
-                countr++;
+                shift++;
             }
             return shift;
         }

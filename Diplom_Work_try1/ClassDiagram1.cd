@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Diplom_Work_try1.Algorithm">
+    <Position X="2.75" Y="4" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="Diplom_Work_try1.Algorithm.Side" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Algorithm.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAACAAAAAACAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Algorithm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Diplom_Work_try1.Canny" Collapsed="true">
+    <Position X="0.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAhAAKBABAAAAAAKAAAUACABJAAFABCISIEAACBAA=</HashCode>
+      <FileName>Canny.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Diplom_Work_try1.Contour">
+    <Position X="6.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAACAAAUAEAAAAAAAAAAAAAAgAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Contour.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Diplom_Work_try1.Dot">
+    <Position X="4.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGABYAE=</HashCode>
+      <FileName>Dot.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Diplom_Work_try1.Engine">
+    <Position X="0.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACgACQAQAAMAEAAAAAAgAAEAIQggBAEEIAAAAAAAIAA=</HashCode>
+      <FileName>Engine.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Diplom_Work_try1.Form" Collapsed="true">
+    <Position X="2.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABgSACEEABIIAECAIQECgACAAYIIIHQAAQCAAEA=</HashCode>
+      <FileName>Form1.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Diplom_Work_try1.Form2" Collapsed="true">
+    <Position X="4.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABIgAACAAEABAAACAGAACAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>Form2.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Diplom_Work_try1.Matrix" Collapsed="true">
+    <Position X="4.75" Y="11.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAAAABAAAEAAAAAgAAEAAIBAAAAAAAAA=</HashCode>
+      <FileName>Matrix.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Diplom_Work_try1.Program" Collapsed="true">
+    <Position X="2.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Diplom_Work_try1.Surface">
+    <Position X="8.5" Y="1" Width="1.5" />
+    <NestedTypes>
+      <Delegate Name="Diplom_Work_try1.Surface.Inval" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Surface.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AQAAACAAQAABAAAAAAAAgSAAAAAAAAAAAAAAAACAAAg=</HashCode>
+      <FileName>Surface.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Diplom_Work_try1.Properties.Resources" Collapsed="true">
+    <Position X="8.25" Y="11.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAABEAAAAQAAAAAAAAAAAAAAAIA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Diplom_Work_try1.Properties.Settings" Collapsed="true">
+    <Position X="6.5" Y="11.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAIAAAAAABAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

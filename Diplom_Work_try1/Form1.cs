@@ -10,7 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-
+using Tao.OpenGl;
+using Tao.FreeGlut;
+using Tao.Platform.Windows;
 
 namespace Diplom_Work_try1
 {
@@ -18,7 +20,6 @@ namespace Diplom_Work_try1
     {
         public static Engine ProgrammEngine;
         private List<Contour> ct;
-        private Surface sur;
 
         private Graphics g; // Экземпляр класса графики(с помощью него и происходит рисование)
         private bool end = false;
@@ -53,7 +54,8 @@ namespace Diplom_Work_try1
             ProgrammEngine.LoadImages();
             panel1.BackgroundImage = ProgrammEngine.GetCurrentShot();
             ProgrammEngine.GetFiltredShot();
-            pictureBox1.Image = Engine.currentSegregation;
+            textBox2.Text = ProgrammEngine.CountShots.ToString();
+            textBox1.Text = "0";
         }
 
         private void CountOfShots_ValueChanged(object sender, EventArgs e) //Обработчик изменения значения поля для количества снимков
@@ -87,11 +89,11 @@ namespace Diplom_Work_try1
             else
             {
                 ispaint = false;
-                /*if (!end)
+                if (!end)
                 {
-                    contour = ProgrammEngine.FinishCountour(DotsForContour);
-                    RedrawCountour(contour);
-                }*/
+                    DotsForContour = ProgrammEngine.FinishCountour(DotsForContour);
+                    RedrawCountour(DotsForContour);
+                }
             }
         }
 
@@ -160,25 +162,30 @@ namespace Diplom_Work_try1
             notecentbutton.Enabled = true;
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void button3_Click(object sender, EventArgs e) //Обработчик кнопки "Отметить центр"
         {
             notingCentr = true;
         }
 
-        private void save_button_Click(object sender, EventArgs e)
+        private void save_button_Click(object sender, EventArgs e) //Обработчик кнопки "Сохранить"
         {
             var dist = DotsForContour.Distinct();
             ct.Add(new Contour(dist.ToList()));
+            textBox1.Text = (ProgrammEngine.Counter + 1).ToString();
             if (ProgrammEngine.CountShots > (ProgrammEngine.Counter + 1))
             {
                 ProgrammEngine.MaintainCounter();
                 panel1.BackgroundImage = ProgrammEngine.GetCurrentShot();
                 ProgrammEngine.GetFiltredShot();
-                pictureBox1.Image = Engine.currentFiltredImage;
                 DotsForContour.Clear();
             }
             else
-                sur = new Surface();
+            {
+                Form2 f = new Form2(ct);
+                f.Size = new Size(700, 510);
+                f.Visible = true;
+                //f.ShowDialog();
+            }
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
